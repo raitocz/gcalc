@@ -1,0 +1,16 @@
+{
+    "name": "raitocz/gcalc",
+    "description": "Small PHP task to demonstrate code style, for SOCIFI.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Martin Jagr",
+            "email": "martin.jagr@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Gcalc\\": "src/"
+        }
+    }
+}

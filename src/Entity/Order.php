@@ -1,5 +1,11 @@
 <?php
 
+namespace Gcalc\Entity;
+
+use DateTime;
+use Exception;
+use Gcalc\Exception\Entity\IncorrectInputData;
+
 /**
  * Class Order
  */
@@ -24,12 +30,43 @@ class Order {
 
 	/**
 	 * @param $lenses
-	 * @throws Exception
+	 * @throws IncorrectInputData
 	 */
 	public function parseLenses($lenses) {
 		foreach ($lenses as $lens) {
+			if(!isset($lens[0]) || !isset($lens[1]) || !isset($lens[2])){
+				throw new IncorrectInputData();
+			}
+
 			$this->addLenses(new Lenses($lens[0], $lens[1], $lens[2]));
 		}
+	}
+
+	/**
+	 * @param array $lensExpiry
+	 * @return int
+	 * @throws IncorrectInputData
+	 */
+	public function getTotalExpiryDays(array $lensExpiry): int {
+		$days = 0;
+
+		/** @var Lenses $lens */
+		foreach ($this->getLenses() as $lens) {
+			if(!isset($lensExpiry[$lens->getType()])){
+				throw new IncorrectInputData();
+			}
+			$days = $lensExpiry[$lens->getType()] * $lens->getQuantity();
+		}
+
+		return $days;
+	}
+
+
+	/**
+	 * @return array
+	 */
+	public function getLenses(): array {
+		return $this->lenses;
 	}
 
 	/**
@@ -37,13 +74,6 @@ class Order {
 	 */
 	public function addLenses(Lenses $lenses) {
 		$this->lenses[] = $lenses;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getLenses(): array {
-		return $this->lenses;
 	}
 
 	/**
@@ -58,25 +88,6 @@ class Order {
 	 */
 	protected function setCreatedAt(DateTime $createdAt): void {
 		$this->createdAt = $createdAt;
-	}
-
-	/**
-	 * Again, not playing around with scenarios that have different lenses in orders. If so, I would:
-	 * - get all diferent lenses
-	 * - sum their expiry dates
-	 * - check if "every eye" is covered by the order
-	 * - and so on...
-	 * @return float|int
-	 */
-	public function getTotalExpiryDays(): int {
-		$days = 0;
-
-		/** @var Lenses $lens */
-		foreach ($this->getLenses() as $lens) {
-			$days = $lens->getExpiryDays() * $lens->getQuantity();
-		}
-
-		return $days;
 	}
 
 
